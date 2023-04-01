@@ -96,6 +96,41 @@ public class Main {
     private static Summary createSummaryWithType(String period, int amount, int count, int refundAmount,int refundCount ) {
         return new Summary(period, amount, count, refundAmount, refundCount);
     }
+
+    public List<TransactionPeriodDate> groupPeriods(List<Period> periodList) {
+        List<TransactionPeriodDate> groupedPeriods = new ArrayList<>();
+        LocalDate latestEnd = null;
+        String latestGroupBy = null;
+        List<Period> currentGroupedPeriods = new ArrayList<>();
+
+        for (Period period : periodList) {
+            LocalDate start = LocalDate.parse(period.getStart());
+            LocalDate end = LocalDate.parse(period.getEnd());
+            String groupBy = period.getGroupBy();
+
+            if (latestEnd == null || start.isAfter(latestEnd) || !groupBy.equals(latestGroupBy)) {
+                // If there is no previous period or the current period does not overlap with the previous period or the groupBy value is different, add it to the grouped list
+                if (!currentGroupedPeriods.isEmpty()) {
+                    groupedPeriods.add(new TransactionPeriodDate(currentGroupedPeriods.get(0).getStart(), latestEnd, latestGroupBy, currentGroupedPeriods));
+                    currentGroupedPeriods.clear();
+                }
+                currentGroupedPeriods.add(period);
+                latestEnd = end;
+                latestGroupBy = groupBy;
+            } else {
+                // If the current period overlaps with the previous period and has the same groupBy value, add it to the current group
+                currentGroupedPeriods.add(period);
+                latestEnd = end;
+            }
+        }
+
+        if (!currentGroupedPeriods.isEmpty()) {
+            groupedPeriods.add(new TransactionPeriodDate(currentGroupedPeriods.get(0).getStart(), latestEnd, latestGroupBy, currentGroupedPeriods));
+        }
+
+        return groupedPeriods;
+    }
+
 }
 
 
