@@ -131,6 +131,41 @@ public class Main {
         return groupedPeriods;
     }
 
+    public List<TransactionPeriodDate> groupPeriods(List<Period> periodList) {
+        List<TransactionPeriodDate> groupedPeriods = new ArrayList<>();
+
+        int i = 0;
+        while (i < periodList.size()) {
+            System.out.println("Current index: " + i);
+            Period firstPeriod = periodList.get(i);
+            System.out.println("Processing first period: " + firstPeriod.getStart() + ", " + firstPeriod.getEnd() + ", " + firstPeriod.getGroupBy());
+
+            if (i + 1 < periodList.size()) {
+                Period secondPeriod = periodList.get(i + 1);
+                System.out.println("Processing second period: " + secondPeriod.getStart() + ", " + secondPeriod.getEnd() + ", " + secondPeriod.getGroupBy());
+                LocalDate firstEnd = LocalDate.parse(firstPeriod.getEnd());
+                LocalDate secondStart = LocalDate.parse(secondPeriod.getStart());
+
+                if (firstEnd.plusDays(1).isEqual(secondStart) && firstPeriod.getGroupBy().equals(secondPeriod.getGroupBy())) {
+                    groupedPeriods.add(new TransactionPeriodDate(firstPeriod.getStart(), secondPeriod.getEnd(), firstPeriod.getGroupBy()));
+                    System.out.println("Merging periods: " + firstPeriod.getStart() + ", " + secondPeriod.getEnd() + ", " + firstPeriod.getGroupBy() );
+                    i += 2;
+                } else {
+                    groupedPeriods.add(new TransactionPeriodDate(firstPeriod.getStart(), firstPeriod.getEnd(), firstPeriod.getGroupBy()));
+                    System.out.println("Adding first period: + firstPeriod.getStart() + ", " + firstPeriod.getEnd() + ", " + firstPeriod.getGroupBy() );
+                    i += 1;
+                }
+            } else {
+                groupedPeriods.add(new TransactionPeriodDate(firstPeriod.getStart(), firstPeriod.getEnd(), firstPeriod.getGroupBy()));
+                System.out.println("Adding first period: " + firstPeriod.getStart() + ", " + firstPeriod.getEnd() + ", " + firstPeriod.getGroupBy() );
+                i += 1;
+            }
+        }
+
+        return groupedPeriods;
+    }
+
+
 }
 
 
